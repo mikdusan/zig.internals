@@ -305,9 +305,7 @@ CondBr
    ``else_block``
       branch taken if ``condition`` == ``false``
 
-..
-..
-..
+reset paragraph
 
    source-reduction → GIR:
 
