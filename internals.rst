@@ -282,7 +282,7 @@ Other
 Const
 `````
 
-`IrInstructionConst` is a value known at compile-time.
+``IrInstructionConst`` is a value known at compile-time.
 
 Terminators
 ~~~~~~~~~~~
@@ -304,6 +304,8 @@ CondBr
       branch taken if ``condition`` == ``true``
    ``else_block``
       branch taken if ``condition`` == ``false``
+
+..
 
    source-reduction → GIR:
 
