@@ -295,9 +295,9 @@ Br
 CondBr
 ``````
 
-`IrInstructionCondBr` conditionally transfers control flow.
+``IrInstructionCondBr`` conditionally transfers control flow.
 
-``operands``
+syntax: ``if (condition) *bold* **double** $then_block else $else_block``
    ``condition``
       is evaluated as a ``bool``
    ``then_block``
