@@ -234,7 +234,8 @@ Each line represents an SIR instruction:
 - column 3 is the Zig type for the instruction as an expression
 - column 4 is a reference count for the instruction
 - column 5 is a string representation of the instruction state including any operands
-- label instructions are shown in 1-column format in style ``<name>_<debug-id>:``
+
+Intermixed between instructions are basic-block labels in style ``<name>_<debug-id>:``
 
 GIR
 ---
@@ -272,10 +273,12 @@ produces GIR:
        #39 | Return                | noreturn    | - | return #34
    }
 
-GIR is very similar to SIR and is usually in number of instructions as many have already been consumed by the pipeline. Bear in mind a few things:
+GIR is very similar to SIR and is reduced in number of instructions as many have already been consumed by the pipeline. Bear in mind a few things:
 
 - the debug-ids from GIR have no correlation to those from SIR
 - many SIR instructions are illegal in GIR
 - all types are resolved
 
 We should pause for a moment and examine why one of the instructions in column 1 looks different. Looking backwards from ``:12`` we see that ``#16`` is using ``#12`` and it's an ``AllocaGen``. These are special - the ``:12`` rather than ``#12`` indicates that the previous instruction references it, but it is not code-generated right there in that position. Rather, all the ``AllocaGen`` instructions are code-generated at the very beginning of a function before anything else.
+
+.. include:: inc.rst
