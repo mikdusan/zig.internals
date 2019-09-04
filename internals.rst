@@ -234,11 +234,11 @@ Each line represents an SIR instruction:
 
 for column:
 
-   # → debug-id which is unique to the function body
-   # → trimmed C++ ``struct`` name representing an instruction type
-   # → Zig type for the instruction as an expression
-   # → reference count for the instruction
-   # → syntax (string representation) of the instruction
+   #. → debug-id which is unique to the function body
+   #. → trimmed C++ ``struct`` name representing an instruction type
+   #. → Zig type for the instruction as an expression
+   #. → reference count for the instruction
+   #. → syntax (string representation) of the instruction
 
 Intermixed between instructions are basic-block labels in style ``<name>_<debug-id>:``
 
