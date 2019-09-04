@@ -297,19 +297,11 @@ CondBr
 
 ``IrInstructionCondBr`` conditionally transfers control flow.
 
-.. code:: bnf
+``syntax``
 
-   entry     ::= <timestamp> <module> <log-level> <code-line> <message>
-   timestamp ::= <date> <time>
-   date      ::= <year> "-" <month> "-" <day>
-   time      ::= <hour> ":" <minute> ":" <second> "," <millisecond>
-   log-level ::= "DEBUG" | "INFO" | "WARN" | "ERROR"
-   code-line ::= "integer"
-   message   ::= "alphanumeric"
-
-   CondBr ::= one "one" 'two' [three] (four) || &&
-
-..
+   .. code:: bnf
+      <CondBr> ::= "if" "(" <condition> ")" "$"<then_block> "else" "$"<else_block>
+   ..
 
    ``condition``
       is evaluated as a ``bool``
@@ -317,7 +309,6 @@ CondBr
       branch taken if ``condition`` == ``true``
    ``else_block``
       branch taken if ``condition`` == ``false``
-
 ..
 
    source-reduction → GIR:
