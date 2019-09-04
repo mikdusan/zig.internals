@@ -292,7 +292,7 @@ Br
 
 ``IrInstructionBr`` unconditionally transfers control flow to a different basic-block.
 
-::
+.. line-block::
 
     source-reduction → SIR:
 
