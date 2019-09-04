@@ -278,7 +278,45 @@ Other
 Const
 `````
 
+syntax:
+
+   .. code:: bnf
+
+      <Const> ::= <value>
+
+   ``value``
+      comptime-known value
+
 ``IrInstructionConst`` is a value known at compile-time.
+
+source-reduction → SIR:
+
+   .. code:: zig
+
+      export fn reduction() void {
+         _ = true;
+      }
+
+   .. code::
+
+      fn reduction() { // (IR)
+      Entry_0:
+          #1  | ResetResult           | (unknown)   | - | ResetResult(none)
+          #2  | ResetResult           | (unknown)   | - | ResetResult(none)
+          #3  | ResetResult           | (unknown)   | - | ResetResult(none)
+          #4  | Const                 | *void       | 1 | *_
+          #5  | ResetResult           | (unknown)   | - | ResetResult(inst(*_))
+          #6  | Const                 | bool        | 1 | true
+          #7  | EndExpr               | (unknown)   | - | EndExpr(result=inst(*_),value=true)
+          #8  | Const                 | void        | 2 | {}
+          #9  | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
+          #10 | CheckStatementIsVoid  | (unknown)   | - | @checkStatementIsVoid({})
+          #11 | Const                 | void        | 0 | {}
+          #12 | Const                 | void        | 3 | {}
+          #13 | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
+          #14 | AddImplicitReturnType | (unknown)   | - | @addImplicitReturnType({})
+          #15 | Return                | noreturn    | - | return {}
+      }
 
 Terminators
 ~~~~~~~~~~~
@@ -290,7 +328,7 @@ syntax:
 
    .. code:: bnf
 
-      <CondBr> ::= "goto" "$"<dest_block>
+      <Br> ::= "goto" "$"<dest_block>
 
    ``dest_block``
       branch to take
