@@ -86,21 +86,21 @@ until ``libuserland.a`` is produced.
 
     .. code:: sh
 
-        $ cd ~/zig/work
-        $ mkdir _build
-        $ cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
-        $ ninja -C _build zig0
-        $ _build/zig0 --override-std-dir std --override-lib-dir . version
+        cd ~/zig/work
+        mkdir _build
+        cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
+        ninja -C _build zig0
+        _build/zig0 --override-std-dir std --override-lib-dir . version
 
 ``configure, build and execute zig``
 
     .. code:: sh
 
-        $ cd ~/zig/work
-        $ mkdir _build
-        $ cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
-        $ ninja -C _build zig
-        $ _build/zig --override-std-dir std --override-lib-dir . version
+        cd ~/zig/work
+        mkdir _build
+        cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
+        ninja -C _build zig
+        _build/zig --override-std-dir std --override-lib-dir . version
 
 Compiler Pipeline
 -----------------
@@ -180,15 +180,11 @@ This section will briefly describe textual representation of IR for example sour
 SIR
 ~~~
 
-SIR is more difficult to find because it doesn't include a global function name when printed.
-One workaround is to first find the GIR which contains the function name and then backup to a larger group
-of instructions without a function name.
-
 SIR listing for ``reduction.zig``:
 
 .. code::
 
-   { // (IR)
+   fn reduction() { // (IR)
    Entry_0:
        #1  | ResetResult           | (unknown)   | - | ResetResult(none)
        #2  | ResetResult           | (unknown)   | - | ResetResult(none)
@@ -236,11 +232,13 @@ SIR listing for ``reduction.zig``:
 
 Each line represents an SIR instruction:
 
-- column 1 is the debug-id which is unique to the function body
-- column 2 is the trimmed C++ ``struct`` name representing an instruction type
-- column 3 is the Zig type for the instruction as an expression
-- column 4 is a reference count for the instruction
-- column 5 is a string representation of the instruction state including any operands
+.. enumerated_list::
+
+   - column # debug-id which is unique to the function body
+   - column # trimmed C++ ``struct`` name representing an instruction type
+   - column # Zig type for the instruction as an expression
+   - column # reference count for the instruction
+   - column # syntax (string representation) of the instruction
 
 Intermixed between instructions are basic-block labels in style ``<name>_<debug-id>:``
 
@@ -290,12 +288,12 @@ Terminators
 Br
 ``
 
-``IrInstructionBr`` unconditionally transfers control flow to a different basic-block.
+``IrInstructionBr`` unconditionally transfers control flow to another basic-block.
 
 CondBr
 ``````
 
-``IrInstructionCondBr`` conditionally transfers control flow.
+``IrInstructionCondBr`` conditionally transfers control flow to other basic-blocks.
 
 syntax:
 
@@ -352,6 +350,8 @@ source-reduction → GIR:
 
 Return
 ``````
+
+``IrInstructionReturn`` conditionally transfers control flow to other basic-blocks.
 
 source-reduction → GIR:
 
