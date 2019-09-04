@@ -301,6 +301,14 @@ CondBr
 
    CondBr ::= one "one" 'two' [three] (four) || &&
 
+.. code:: grammar_notation
+
+   CondBr ::= one, "two"
+
+.. code:: bnf
+
+   CondBr ::= one, "two"
+
 ..
 
    ``condition``
