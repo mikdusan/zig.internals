@@ -318,6 +318,14 @@ source-reduction → SIR:
           #15 | Return                | noreturn    | - | return {}
       }
 
+   .. code:: diff
+
+      | one
+      |+two
+      | three
+      |     four
+      | four
+
 Terminators
 ~~~~~~~~~~~
 
