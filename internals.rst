@@ -300,6 +300,7 @@ CondBr
 ``syntax``
 
    .. code:: bnf
+
       <CondBr> ::= "if" "(" <condition> ")" "$"<then_block> "else" "$"<else_block>
    ..
 
@@ -311,7 +312,7 @@ CondBr
       branch taken if ``condition`` == ``false``
 ..
 
-   source-reduction → GIR:
+source-reduction → GIR:
 
    .. code:: zig
 
@@ -353,7 +354,7 @@ CondBr
 Return
 ``````
 
-   source-reduction → GIR:
+source-reduction → GIR:
 
    .. code:: zig
 
