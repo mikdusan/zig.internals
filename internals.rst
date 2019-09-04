@@ -299,15 +299,15 @@ CondBr
 
 .. code:: bnf
 
+   entry     ::= <timestamp> <module> <log-level> <code-line> <message>
+   timestamp ::= <date> <time>
+   date      ::= <year> "-" <month> "-" <day>
+   time      ::= <hour> ":" <minute> ":" <second> "," <millisecond>
+   log-level ::= "DEBUG" | "INFO" | "WARN" | "ERROR"
+   code-line ::= "integer"
+   message   ::= "alphanumeric"
+
    CondBr ::= one "one" 'two' [three] (four) || &&
-
-.. code:: grammar_notation
-
-   CondBr ::= one, "two"
-
-.. code:: bnf
-
-   CondBr ::= one, "two"
 
 ..
 
