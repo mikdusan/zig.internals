@@ -320,11 +320,11 @@ source-reduction → SIR:
 
    .. code:: diff
 
-      | one
-      |+two
-      | three
-      |     four
-      | four
+       one
+      +two
+       three
+           four
+       four
 
 Terminators
 ~~~~~~~~~~~
