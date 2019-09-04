@@ -233,12 +233,20 @@ SIR listing for ``reduction.zig``:
 Each line represents an SIR instruction:
 
 for column:
-
    #. → debug-id which is unique to the function body
    #. → trimmed C++ ``struct`` name representing an instruction type
    #. → Zig type for the instruction as an expression
    #. → reference count for the instruction
    #. → syntax (string representation) of the instruction
+
+another:
+
+   1. hello
+   2. world
+
+more:
+   1. hello
+   2. world
 
 Intermixed between instructions are basic-block labels in style ``<name>_<debug-id>:``
 
