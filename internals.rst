@@ -285,9 +285,9 @@ syntax:
       <Const> ::= <value>
 
    ``value``
-      comptime-known value
+      comptime value
 
-``IrInstructionConst`` is a value known at compile-time.
+``IrInstructionConst`` is a compile-time instruction.
 
 source-reduction → SIR:
 
