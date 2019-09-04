@@ -292,62 +292,75 @@ Br
 
 ``IrInstructionBr`` unconditionally transfers control flow to a different basic-block.
 
-    source-reduction → SIR:
-
-    .. code:: zig
-
-        export fn reduction(cond: bool) void {
-            var a: u64 = 999;
-            if (cond) {
-                a += 333;
-            } else {
-                a -= 333;
-            }
-        }
-
-    .. code::
-
-        fn reduction() { // (analyzed)
-        Entry_0:
-            #16 | StorePtr              | void        | - | *#12 = 999
-            :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
-            #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
-            #20 | VarPtr                | *const bool | 1 | &cond
-            #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
-            #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
-        Then_25:
-            #30 | VarPtr                | *u64        | 2 | &a
-            #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
-            #36 | BinOp                 | u64         | 1 | #31 + 333
-            #37 | StorePtr              | void        | - | *#30 = #36
-            #60 | Br                    | noreturn    | - | goto $EndIf_56
-        Else_26:
-            #44 | VarPtr                | *u64        | 2 | &a
-            #45 | LoadPtrGen            | u64         | 1 | loadptr(#44)result=(null)
-            #50 | BinOp                 | u64         | 1 | #45 - 333
-            #51 | StorePtr              | void        | - | *#44 = #50
-            #63 | Br                    | noreturn    | - | goto $EndIf_56
-        EndIf_56:
-            #70 | Return                | noreturn    | - | return {}
-        }
-
 CondBr
 ``````
 
-`IrInstructionCondBr` conditionally transfers control flow to a different basic-block.
+`IrInstructionCondBr` conditionally transfers control flow.
+
+``operands``
+   ``condition``
+      is evaluated as a ``bool``
+   ``then_block``
+      branch taken if ``condition`` == ``true``
+   ``else_block``
+      branch taken if ``condition`` == ``false``
+
+   source-reduction → GIR:
+
+   .. code:: zig
+
+   export fn reduction(cond: bool) void {
+       var a: u64 = 999;
+       if (cond) {
+           a += 333;
+       } else {
+           a -= 333;
+       }
+   }
+
+   .. code::
+
+      fn reduction() { // (analyzed)
+      Entry_0:
+          #16 | StorePtr              | void        | - | *#12 = 999
+          :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+          #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
+          #20 | VarPtr                | *const bool | 1 | &cond
+          #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
+          #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
+      Then_25:
+          #30 | VarPtr                | *u64        | 2 | &a
+          #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
+          #36 | BinOp                 | u64         | 1 | #31 + 333
+          #37 | StorePtr              | void        | - | *#30 = #36
+          #60 | Br                    | noreturn    | - | goto $EndIf_56
+      Else_26:
+          #44 | VarPtr                | *u64        | 2 | &a
+          #45 | LoadPtrGen            | u64         | 1 | loadptr(#44)result=(null)
+          #50 | BinOp                 | u64         | 1 | #45 - 333
+          #51 | StorePtr              | void        | - | *#44 = #50
+          #63 | Br                    | noreturn    | - | goto $EndIf_56
+      EndIf_56:
+          #70 | Return                | noreturn    | - | return {}
+      }
+
+      - ``#27`` is ``CondBr`` instruction
+      - ``#21`` is ``condition``
+      - ``Then_25`` is ``then_block``
+      - ``Else_26`` is ``else_block``
 
 Return
 ``````
 
-from source-reduction → GIR:
+   source-reduction → GIR:
 
-.. code:: zig
+   .. code:: zig
 
-    export fn reduction() void {}
+      export fn reduction() void {}
 
-.. code::
+   .. code::
 
-    fn reduction() { // (analyzed)
-    Entry_0:
-        #5  | Return                | noreturn    | - | return {}
-    }
+      fn reduction() { // (analyzed)
+      Entry_0:
+          #5  | Return                | noreturn    | - | return {}
+      }
