@@ -290,46 +290,48 @@ Terminators
 Br
 ``
 
-`IrInstructionBr` unconditionally transfers control flow to a different basic-block.
+``IrInstructionBr`` unconditionally transfers control flow to a different basic-block.
 
-from source-reduction → SIR:
+::
 
-.. code:: zig
+    source-reduction → SIR:
 
-    export fn reduction() void {
-        if (true) {} else {}
-    }
+    .. code:: zig
 
-.. code::
+        export fn reduction(cond: bool) void {
+            var a: u64 = 999;
+            if (cond) {
+                a += 333;
+            } else {
+                a -= 333;
+            }
+        }
 
-    fn reduction() { // (IR)
-    Entry_0:
-        #1  | ResetResult           | (unknown)   | - | ResetResult(none)
-        #2  | ResetResult           | (unknown)   | - | ResetResult(none)
-        #3  | ResetResult           | (unknown)   | - | ResetResult(none)
-        #4  | Const                 | bool        | 3 | true
-        #5  | EndExpr               | (unknown)   | - | EndExpr(result=none,value=true)
-        #6  | TestComptime          | (unknown)   | 3 | @testComptime(true)
-        #11 | ResetResult           | (unknown)   | - | ResetResult(peer_parent)
-        #10 | CondBr                | noreturn    | - | if (true) $Then_7 else $Else_8 // comptime = #6
-    Then_7:
-        #12 | Const                 | void        | 2 | {}
-        #13 | EndExpr               | (unknown)   | - | EndExpr(result=peer(next=$Else_8),value={})
-        #14 | Br                    | noreturn    | - | goto $EndIf_9 // comptime = #6
-    Else_8:
-        #15 | Const                 | void        | 2 | {}
-        #16 | EndExpr               | (unknown)   | - | EndExpr(result=peer(next=$EndIf_9),value={})
-        #17 | Br                    | noreturn    | - | goto $EndIf_9 // comptime = #6
-    EndIf_9:
-        #18 | Phi                   | (unknown)   | 2 | $Then_7:{} $Else_8:{}
-        #19 | EndExpr               | (unknown)   | - | EndExpr(result=none,value=#18)
-        #20 | CheckStatementIsVoid  | (unknown)   | - | @checkStatementIsVoid(#18)
-        #21 | Const                 | void        | 0 | {}
-        #22 | Const                 | void        | 3 | {}
-        #23 | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
-        #24 | AddImplicitReturnType | (unknown)   | - | @addImplicitReturnType({})
-        #25 | Return                | noreturn    | - | return {}
-    }
+    .. code::
+
+        fn reduction() { // (analyzed)
+        Entry_0:
+            #16 | StorePtr              | void        | - | *#12 = 999
+            :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+            #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
+            #20 | VarPtr                | *const bool | 1 | &cond
+            #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
+            #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
+        Then_25:
+            #30 | VarPtr                | *u64        | 2 | &a
+            #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
+            #36 | BinOp                 | u64         | 1 | #31 + 333
+            #37 | StorePtr              | void        | - | *#30 = #36
+            #60 | Br                    | noreturn    | - | goto $EndIf_56
+        Else_26:
+            #44 | VarPtr                | *u64        | 2 | &a
+            #45 | LoadPtrGen            | u64         | 1 | loadptr(#44)result=(null)
+            #50 | BinOp                 | u64         | 1 | #45 - 333
+            #51 | StorePtr              | void        | - | *#44 = #50
+            #63 | Br                    | noreturn    | - | goto $EndIf_56
+        EndIf_56:
+            #70 | Return                | noreturn    | - | return {}
+        }
 
 CondBr
 ``````
