@@ -297,12 +297,11 @@ CondBr
 
 ``IrInstructionCondBr`` conditionally transfers control flow.
 
-``syntax``
+syntax:
 
    .. code:: bnf
 
       <CondBr> ::= "if" "(" <condition> ")" "$"<then_block> "else" "$"<else_block>
-   ..
 
    ``condition``
       is evaluated as a ``bool``
