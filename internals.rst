@@ -286,12 +286,19 @@ Terminators
 Br
 ``
 
+syntax:
+
+   .. code:: bnf
+
+      <CondBr> ::= "goto" "$"<dest_block>
+
+   ``dest_block``
+      branch to take
+
 ``IrInstructionBr`` unconditionally transfers control flow to another basic-block.
 
 CondBr
 ``````
-
-``IrInstructionCondBr`` conditionally transfers control flow to other basic-blocks.
 
 syntax:
 
@@ -305,7 +312,8 @@ syntax:
       branch taken if ``condition`` == ``true``
    ``else_block``
       branch taken if ``condition`` == ``false``
-..
+
+``IrInstructionCondBr`` conditionally transfers control flow to other basic-blocks.
 
 source-reduction → GIR:
 
@@ -349,7 +357,13 @@ source-reduction → GIR:
 Return
 ``````
 
-``IrInstructionReturn`` conditionally transfers control flow to other basic-blocks.
+syntax:
+
+   .. code:: bnf
+
+      <Return> ::= "return" "{}"
+
+``IrInstructionReturn`` unconditionally transfers control flow back to the caller basic-block.
 
 source-reduction → GIR:
 
