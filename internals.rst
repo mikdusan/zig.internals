@@ -306,6 +306,8 @@ CondBr
       branch taken if ``condition`` == ``false``
 
 ..
+..
+..
 
    source-reduction → GIR:
 
