@@ -1,8 +1,7 @@
 export fn reduction(cond: bool) void {
-    var a: u64 = undefined;
-    again: {
-        a += 1;
-        break :again;
+    var a: u64 = 999;
+    if (cond) {
+        a += 333;
     }
 }
 

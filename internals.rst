@@ -297,6 +297,39 @@ syntax:
 
 ``IrInstructionBr`` unconditionally transfers control flow to another basic-block.
 
+source-reduction → GIR:
+
+   .. code:: zig
+
+      export fn reduction(cond: bool) void {
+          var a: u64 = 999;
+          if (cond) {
+              a += 333;
+          }
+      }
+
+   .. code::
+
+      fn reduction() { // (analyzed)
+      Entry_0:
+          #16 | StorePtr              | void        | - | *#12 = 999
+          :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+          #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
+          #20 | VarPtr                | *const bool | 1 | &cond
+          #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
+          #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
+      Then_25:
+          #30 | VarPtr                | *u64        | 2 | &a
+          #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
+          #36 | BinOp                 | u64         | 1 | #31 + 333
+          #37 | StorePtr              | void        | - | *#30 = #36
+          #47 | Br                    | noreturn    | - | goto $EndIf_43
+      Else_26:
+          #50 | Br                    | noreturn    | - | goto $EndIf_43
+      EndIf_43:
+          #57 | Return                | noreturn    | - | return {}
+      }
+
 CondBr
 ``````
 
