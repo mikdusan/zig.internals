@@ -297,7 +297,12 @@ CondBr
 
 ``IrInstructionCondBr`` conditionally transfers control flow.
 
-syntax: ``if (condition) *bold* **double** $then_block else $else_block``
+.. code:: bnf
+
+   CondBr ::= one "one" 'two' [three] (four) || &&
+
+..
+
    ``condition``
       is evaluated as a ``bool``
    ``then_block``
@@ -345,11 +350,6 @@ syntax: ``if (condition) *bold* **double** $then_block else $else_block``
       EndIf_56:
           #70 | Return                | noreturn    | - | return {}
       }
-
-   - ``#27`` is ``CondBr`` instruction
-   - ``#21`` is ``condition``
-   - ``Then_25`` is ``then_block``
-   - ``Else_26`` is ``else_block``
 
 Return
 ``````
