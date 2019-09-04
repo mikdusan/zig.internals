@@ -305,20 +305,20 @@ CondBr
    ``else_block``
       branch taken if ``condition`` == ``false``
 
-reset paragraph
+..
 
    source-reduction → GIR:
 
    .. code:: zig
 
-   export fn reduction(cond: bool) void {
-       var a: u64 = 999;
-       if (cond) {
-           a += 333;
-       } else {
-           a -= 333;
-       }
-   }
+      export fn reduction(cond: bool) void {
+          var a: u64 = 999;
+          if (cond) {
+              a += 333;
+          } else {
+              a -= 333;
+          }
+      }
 
    .. code::
 
@@ -346,10 +346,10 @@ reset paragraph
           #70 | Return                | noreturn    | - | return {}
       }
 
-      - ``#27`` is ``CondBr`` instruction
-      - ``#21`` is ``condition``
-      - ``Then_25`` is ``then_block``
-      - ``Else_26`` is ``else_block``
+   - ``#27`` is ``CondBr`` instruction
+   - ``#21`` is ``condition``
+   - ``Then_25`` is ``then_block``
+   - ``Else_26`` is ``else_block``
 
 Return
 ``````
