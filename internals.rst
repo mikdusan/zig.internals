@@ -198,8 +198,8 @@ note:
    We're going to overload the use of ``diff`` highlighting to draw attention to to certain IR listings.
    Please ignore the unfortunate side-effect exclamation-mark at the beginning of attention lines.
 
-Main
-~~~~
+general
+~~~~~~~
 
 BinOp
 `````
@@ -293,7 +293,7 @@ source-reduction → SIR:
           #15 | Return                | noreturn    | - | return {}
       }
 
-Terminators
+terminators
 ~~~~~~~~~~~
 
 Br
