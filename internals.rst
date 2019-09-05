@@ -87,7 +87,7 @@ Reading IR
 This section will briefly describe textual representation of IR for example source ``reduction.zig``:
 
 .. code:: zig
-   :name: reading_ir_reduction
+   :name: mike
 
    export fn reduction() u64 {
        var i: u64 = 999;
@@ -105,19 +105,13 @@ SIR
 
 SIR listing for ``reduction.zig``:
 
-SIR listing for `Reading IR`_:
+1.SIR listing for `Reading IR`_:
 
-SIR listing for `reading_ir_reduction`_:
+2.SIR listing for `mike`_:
 
-SIR listing for :ref:`_reading_ir_reduction`:
+3.SIR listing for :ref:`mike`:
 
-SIR listing for :ref:`reading_ir_reduction`:
-
-SIR listing for :ref:`this <reading_ir_reduction>`:
-
-SIR listing for :ref:`this _reading_ir_reduction`:
-
-SIR listing for _reading_ir_reduction
+4.SIR listing for :ref:`more <mike>`:
 
 .. code::
 
