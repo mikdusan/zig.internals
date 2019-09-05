@@ -225,6 +225,29 @@ syntax:
 
 ``IrInstructionBinOp`` represents a binary operation.
 
+source-reduction → SIR:
+
+   .. code:: zig
+
+      export fn reduction(one: u64, two: u64) void {
+     !    var a: u64 = one + two;
+      }
+
+   .. code:: diff
+
+      fn reduction() { // (analyzed)
+      Entry_0:
+          #10 | VarPtr                | *const u64  | 1 | &one
+     !    #11 | LoadPtrGen            | u64         | 1 | loadptr(#10)result=(null)
+          #14 | VarPtr                | *const u64  | 1 | &two
+     !    #15 | LoadPtrGen            | u64         | 1 | loadptr(#14)result=(null)
+     !    #17 | BinOp                 | u64         | 1 | #11 + #15
+          #20 | StorePtr              | void        | - | *#19 = #17
+          :19 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+          #22 | DeclVarGen            | void        | - | var a: u64 align(8) = #19 // comptime = false
+          #26 | Return                | noreturn    | - | return {}
+      }
+
 Const
 `````
 
@@ -244,7 +267,7 @@ source-reduction → SIR:
    .. code:: zig
 
       export fn reduction() void {
-         _ = true;
+     !   _ = true;
       }
 
    .. code:: diff
@@ -294,7 +317,7 @@ source-reduction → GIR:
           if (cond) {
               a += 333;
           }
-      }
+     !}
 
    .. code:: diff
 
@@ -342,12 +365,12 @@ source-reduction → GIR:
 
       export fn reduction(cond: bool) void {
           var a: u64 = 999;
-          if (cond) {
+     !    if (cond) {
               a += 333;
-          } else {
+     !    } else {
               a -= 333;
           }
-      }
+     !}
 
    .. code:: diff
 
@@ -390,7 +413,7 @@ source-reduction → GIR:
 
    .. code:: zig
 
-      export fn reduction() void {}
+     !export fn reduction() void {}
 
    .. code:: diff
 
