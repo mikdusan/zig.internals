@@ -94,11 +94,6 @@ This section will briefly describe textual representation of IR for example sour
        return i;
    }
 
-   // override panic handler to reduce IR noise
-   pub fn panic(msg: []const u8, error_return_trace: ?*@import("builtin").StackTrace) noreturn {
-       while (true) {}
-   }
-
 SIR
 ~~~
 
@@ -530,6 +525,15 @@ note: for stage1 replace ``zig0`` with ``zig``:
    .. code:: bash
 
       $ _build/zig0 --override-std-dir std --override-lib-dir build-obj reduction.zig --verbose-ir
+
+pro-tip: to reduce IR noise add this to ``reduction.zig``:
+
+.. code:: zig
+
+   // override panic handler to reduce IR noise
+   pub fn panic(msg: []const u8, error_return_trace: ?*@import("builtin").StackTrace) noreturn {
+       while (true) {}
+   }
 
 configure for ``ninja``
 ~~~~~~~~~~~~~~~~~~~~~~~
