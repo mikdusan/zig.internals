@@ -105,7 +105,7 @@ until ``libuserland.a`` is produced.
 Compiler Pipeline
 -----------------
 
-.. image:: internals.svg
+.. image:: pipeline.svg
 
 The Zig compiler architecture pipeline is as follows:
 
