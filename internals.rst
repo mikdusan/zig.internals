@@ -24,84 +24,6 @@ the Zig Programming Language in order to help those who are interested in how
 things work under the hood and to give a starting point in debugging or contributing
 to the project.
 
-Compiler Building
-------------------
-
-Overview
-~~~~~~~~
-
-- cmake
-- compile common C++ sources
-- compile ``userland.o`` C++ sources
-- link ``zig0`` stage0 compiler
-- compile ``libuserland.a`` Zig sources
-- link ``zig`` stage1 compiler
-
-``userland.o``
-   This is a shim implementation of ``libuserland.a`` and is completely implemented in C++.
-   All exported symbols must match ``libuserland.a``. ``zig0`` links against but never makes
-   calls against the shim. All shims are implemented as panics.
-
-``zig0``
-   Also known as the *stage0* compiler.
-   It links against ``userland.o`` and is a functionally limited compiler but is robust
-   enough to build ``libuserland.a``.
-
-   ``zig0`` can build Zig source code, run tests and produce executables.
-   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
-   But it cannot do things like ``zig0 build ...`` because part of that functionality
-   is implemented in ``libuserland.a``.
-
-   During Zig compiler development it may be of use to develop against ``zig0`` in an interative fashion.
-
-   Here is an example of using stage0 to emit IR and LLVM-IR:
-
-   .. code:: sh
-
-      $ _build/zig0 --override-std-dir std --override-lib-dir . build-obj reduction.zig --verbose-ir --verbose-llvm-ir
-
-   and a corresponding example of launching ``lldb`` debugger:
-
-   .. code:: sh
-
-      $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir . build-obj reduction.zig
-
-``libuserland.a``
-   This is a support library implemented in Zig userland.
-   It replaces all shims from ``userland.o`` with implementations.
-   ``zig`` links against this library **instead** of ``userland.o``.
-
-``zig``
-   Also known as the *stage1* compiler.
-   It links against ``libuserland.a`` and is a fully functional compiler.
-   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
-
-Here is a short comparison: building and executing ``zig0`` vs ``zig``.
-Note the final lines where we short-cut the build process to only build ``zig0`` to save time.
-Both show command-line usage to force running from a source repository instead of an install dir.
-However, in the case of ``zig0`` it is almost always necessary because nothing will get installed
-until ``libuserland.a`` is produced.
-
-``configure, build and execute zig0``
-
-    .. code:: sh
-
-        cd ~/zig/work
-        mkdir _build
-        cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
-        ninja -C _build zig0
-        _build/zig0 --override-std-dir std --override-lib-dir . version
-
-``configure, build and execute zig``
-
-    .. code:: sh
-
-        cd ~/zig/work
-        mkdir _build
-        cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
-        ninja -C _build zig
-        _build/zig --override-std-dir std --override-lib-dir . version
-
 Compiler Pipeline
 -----------------
 
@@ -181,6 +103,10 @@ SIR
 ~~~
 
 SIR listing for ``reduction.zig``:
+
+SIR listing for `Reading IR`_:
+
+SIR listing for `this <Reading IR>`_:
 
 .. code::
 
@@ -452,3 +378,138 @@ source-reduction → GIR:
       Entry_0:
      !    #5  | Return                | noreturn    | - | return {}
       }
+
+Compiler Building
+------------------
+
+Overview
+~~~~~~~~
+
+- cmake
+- compile common C++ sources
+- compile ``userland.o`` C++ sources
+- link ``zig0`` stage0 compiler
+- compile ``libuserland.a`` Zig sources
+- link ``zig`` stage1 compiler
+
+``userland.o``
+   This is a shim implementation of ``libuserland.a`` and is completely implemented in C++.
+   All exported symbols must match ``libuserland.a``. ``zig0`` links against but never makes
+   calls against the shim. All shims are implemented as panics.
+
+``zig0``
+   Also known as the *stage0* compiler.
+   It links against ``userland.o`` and is a functionally limited compiler but is robust
+   enough to build ``libuserland.a``.
+
+   ``zig0`` can build Zig source code, run tests and produce executables.
+   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
+   But it cannot do things like ``zig0 build ...`` because part of that functionality
+   is implemented in ``libuserland.a``.
+
+   During Zig compiler development it may be of use to develop against ``zig0`` in an interative fashion.
+
+   Here is an example of using stage0 to emit IR and LLVM-IR:
+
+   .. code:: sh
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir . build-obj reduction.zig --verbose-ir --verbose-llvm-ir
+
+   and a corresponding example of launching ``lldb`` debugger:
+
+   .. code:: sh
+
+      $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir . build-obj reduction.zig
+
+``libuserland.a``
+   This is a support library implemented in Zig userland.
+   It replaces all shims from ``userland.o`` with implementations.
+   ``zig`` links against this library **instead** of ``userland.o``.
+
+``zig``
+   Also known as the *stage1* compiler.
+   It links against ``libuserland.a`` and is a fully functional compiler.
+   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
+
+How-To: Common Tasks
+--------------------
+
+Iteratively build compiler
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+note: for stage1 replace ``zig0`` with ``zig``:
+
+using ``make``:
+
+   .. code:: bash
+
+      $ make -C _build zig0
+      $ _build/zig0 --override-std-dir std --override-lib-dir . version
+
+using ``ninja``:
+
+   .. code:: bash
+
+      $ ninja -C _build zig0
+      $ _build/zig0 --override-std-dir std --override-lib-dir . version
+
+Debug compiler
+~~~~~~~~~~~~~~
+
+note: for stage1 replace ``zig0`` with ``zig``:
+
+using ``gdb``:
+
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj foobar.zig
+      segmentation fault
+      $ gdb --args _build/zig0 --override-std-dir std --override-lib-dir build-obj foobar.zig
+
+using ``lldb``:
+
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj foobar.zig
+      segmentation fault
+      $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir build-obj foobar.zig
+
+Print IR listing
+~~~~~~~~~~~~~~~~
+
+note: for stage1 replace ``zig0`` with ``zig``:
+
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj reduction.zig --verbose-ir
+
+Configure for ``ninja``
+~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. code:: bash
+
+      $ cd ~/zig/work
+      $ mkdir _build
+      $ cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
+
+Best Practices
+--------------
+
+Always direct stage0 to workspace
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is recommended to override ``std`` and ``lib`` dirs for ``zig0``.
+
+``zig build`` functionality is responsible for completing a compiler install.
+Since it is likely ``zig0`` development involves writing tests and userland changes those files cannot be installed until your development is able to progress to stage1.
+
+Reduce and Reduce and Reduce Again
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+.. |path.zig.workspace|    replace:: ~/zig/work
+.. |path.zig.build|        replace:: _build
+.. |path.zig.build.zig|    replace:: _build/zig
+.. |path.zig.build.zig0|   replace:: _build/zig0
+.. |flags.zig.override|    replace:: --override-std-dir std --override-lib-dir .
