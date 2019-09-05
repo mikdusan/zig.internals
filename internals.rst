@@ -86,8 +86,6 @@ Reading IR
 
 This section will briefly describe textual representation of IR for example source ``reduction.zig``:
 
-.. _mike:
-
 .. code:: zig
 
    export fn reduction() u64 {
@@ -200,8 +198,32 @@ note:
    We're going to overload the use of ``diff`` highlighting to draw attention to to certain IR listings.
    Please ignore the unfortunate side-effect exclamation-mark at the beginning of attention lines.
 
-Other
-~~~~~
+Main
+~~~~
+
+BinOp
+`````
+
+syntax:
+
+   .. code:: bnf
+
+      <BinOp> ::= <op1> <op_id> <op1>
+
+   ``op1``
+      first operand
+
+   ``op_id``
+      one of: BoolOr, BoolAnd, CmpEq, CmpNotEq, CmpLessThan, CmpGreaterThan, CmpLessOrEq,
+      CmpGreaterOrEq, BinOr, BinXor, BinAnd, BitShiftLeftLossy, BitShiftLeftExact,
+      BitShiftRightLossy, BitShiftRightExact, Add, AddWrap, Sub, SubWrap, Mult, MultWrap,
+      DivUnspecified, DivExact, DivTrunc, DivFloor, RemUnspecified, RemRem, RemMod, ArrayCat,
+      ArrayMult, MergeErrorSets
+
+   ``op2``
+      second operand
+
+``IrInstructionBinOp`` represents a binary operation.
 
 Const
 `````
@@ -432,7 +454,7 @@ Overview
 How-To: Common Tasks
 --------------------
 
-Iteratively build compiler
+iteratively build compiler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 note: for stage1 replace ``zig0`` with ``zig``:
@@ -451,7 +473,7 @@ using ``ninja``:
       $ ninja -C _build zig0
       $ _build/zig0 --override-std-dir std --override-lib-dir . version
 
-Debug compiler
+debug compiler
 ~~~~~~~~~~~~~~
 
 note: for stage1 replace ``zig0`` with ``zig``:
@@ -472,7 +494,7 @@ using ``lldb``:
       segmentation fault
       $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir build-obj foobar.zig
 
-Print IR listing
+print IR listing
 ~~~~~~~~~~~~~~~~
 
 note: for stage1 replace ``zig0`` with ``zig``:
@@ -481,7 +503,7 @@ note: for stage1 replace ``zig0`` with ``zig``:
 
       $ _build/zig0 --override-std-dir std --override-lib-dir build-obj reduction.zig --verbose-ir
 
-Configure for ``ninja``
+configure for ``ninja``
 ~~~~~~~~~~~~~~~~~~~~~~~
 
    .. code:: bash
@@ -499,7 +521,8 @@ Always direct stage0 to workspace
 It is recommended to override ``std`` and ``lib`` dirs for ``zig0``.
 
 ``zig build`` functionality is responsible for completing a compiler install.
-Since it is likely ``zig0`` development involves writing tests and userland changes those files cannot be installed until your development is able to progress to stage1.
+Since it is likely ``zig0`` development involves writing tests and userland changes
+those files cannot be installed until your development is able to progress to stage1.
 
    .. code:: bash
 
@@ -513,8 +536,7 @@ reduce exposure to unrelated things.
 
 #. Source related issues should be reduced as much as possible. Any superfluous source can easily
    lead to an unnecessary loss of clarity and wasted time.
-#. Compiler segfaults happen and when tracking them down it's best to also reduce the compiler
-   environment as much as possible. Here's a check-list of things to rule-out:
+#. When tracking compiler segfaults try also to reduce the compiler environment:
 
    - if crashing during ``zig run``, ``zig test`` or ``zig build`` then try ``zig build-obj`` instead
    - file/directory permissions, including ``zig-cache`` if active (remember, there are 2 caches)
