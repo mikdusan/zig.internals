@@ -261,7 +261,7 @@ GIR listing for ``reduction.zig``:
        #39 | Return                | noreturn    | - | return #34
    }
 
-GIR is very similar to SIR and is reduced in number of instructions as many have already been consumed by the pipeline. Bear in mind a few things:
+GIR is very similar to SIR and reduced in number of instructions as many have already been consumed by the pipeline. Bear in mind a few things:
 
 - the debug-ids from GIR have no correlation to those from SIR
 - many SIR instructions are illegal in GIR
