@@ -107,6 +107,8 @@ SIR listing for ``reduction.zig``:
 
 SIR listing for `Reading IR`_:
 
+SIR listing for `reading_ir_reduction`_:
+
 SIR listing for :ref:`_reading_ir_reduction`:
 
 SIR listing for :ref:`reading_ir_reduction`:
