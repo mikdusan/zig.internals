@@ -368,7 +368,7 @@ source-reduction → GIR:
      !    #47 | Br                    | noreturn    | - | goto $EndIf_43
       Else_26:
      !    #50 | Br                    | noreturn    | - | goto $EndIf_43
-      EndIf_43:
+     !EndIf_43:
           #57 | Return                | noreturn    | - | return {}
       }
 
@@ -410,8 +410,8 @@ source-reduction → GIR:
           #16 | StorePtr              | void        | - | *#12 = 999
           :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
           #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
-          #20 | VarPtr                | *const bool | 1 | &cond
-          #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
+     !    #20 | VarPtr                | *const bool | 1 | &cond
+     !    #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
      !    #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
      !Then_25:
           #30 | VarPtr                | *u64        | 2 | &a
