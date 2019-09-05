@@ -204,6 +204,8 @@ Main
 BinOp
 `````
 
+``IrInstructionBinOp`` represents a binary operation.
+
 syntax:
 
    .. code:: bnf
@@ -222,15 +224,14 @@ syntax:
 
    ``op2``
       second operand
-
-``IrInstructionBinOp`` represents a binary operation.
+..
 
 source-reduction → SIR:
 
    .. code:: zig
 
       export fn reduction(one: u64, two: u64) void {
-     !    var a: u64 = one + two;
+          var a: u64 = one + two;
       }
 
    .. code:: diff
@@ -251,6 +252,8 @@ source-reduction → SIR:
 Const
 `````
 
+``IrInstructionConst`` is a compile-time instruction.
+
 syntax:
 
    .. code:: bnf
@@ -259,15 +262,14 @@ syntax:
 
    ``value``
       comptime value
-
-``IrInstructionConst`` is a compile-time instruction.
+..
 
 source-reduction → SIR:
 
    .. code:: zig
 
       export fn reduction() void {
-     !   _ = true;
+         _ = true;
       }
 
    .. code:: diff
@@ -297,6 +299,8 @@ Terminators
 Br
 ``
 
+``IrInstructionBr`` unconditionally transfers control flow to another basic-block.
+
 syntax:
 
    .. code:: bnf
@@ -305,8 +309,7 @@ syntax:
 
    ``dest_block``
       branch to take
-
-``IrInstructionBr`` unconditionally transfers control flow to another basic-block.
+..
 
 source-reduction → GIR:
 
@@ -317,7 +320,7 @@ source-reduction → GIR:
           if (cond) {
               a += 333;
           }
-     !}
+      }
 
    .. code:: diff
 
@@ -344,6 +347,8 @@ source-reduction → GIR:
 CondBr
 ``````
 
+``IrInstructionCondBr`` conditionally transfers control flow to other basic-blocks.
+
 syntax:
 
    .. code:: bnf
@@ -356,8 +361,7 @@ syntax:
       branch taken if ``condition`` == ``true``
    ``else_block``
       branch taken if ``condition`` == ``false``
-
-``IrInstructionCondBr`` conditionally transfers control flow to other basic-blocks.
+..
 
 source-reduction → GIR:
 
@@ -365,12 +369,12 @@ source-reduction → GIR:
 
       export fn reduction(cond: bool) void {
           var a: u64 = 999;
-     !    if (cond) {
+          if (cond) {
               a += 333;
-     !    } else {
+          } else {
               a -= 333;
           }
-     !}
+      }
 
    .. code:: diff
 
@@ -401,19 +405,20 @@ source-reduction → GIR:
 Return
 ``````
 
+``IrInstructionReturn`` unconditionally transfers control flow back to the caller basic-block.
+
 syntax:
 
    .. code:: bnf
 
       <Return> ::= "return" "{}"
-
-``IrInstructionReturn`` unconditionally transfers control flow back to the caller basic-block.
+..
 
 source-reduction → GIR:
 
    .. code:: zig
 
-     !export fn reduction() void {}
+      export fn reduction() void {}
 
    .. code:: diff
 
