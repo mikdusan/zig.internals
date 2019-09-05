@@ -106,14 +106,6 @@ SIR
 
 SIR listing for ``reduction.zig``:
 
-1.SIR listing for `Reading IR`_:
-
-2.SIR listing for `mike`_:
-
-3.SIR listing for :ref:`mike`:
-
-4.SIR listing for :ref:`more <mike>`:
-
 .. code::
 
    fn reduction() { // (IR)
