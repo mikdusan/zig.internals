@@ -501,13 +501,24 @@ It is recommended to override ``std`` and ``lib`` dirs for ``zig0``.
 ``zig build`` functionality is responsible for completing a compiler install.
 Since it is likely ``zig0`` development involves writing tests and userland changes those files cannot be installed until your development is able to progress to stage1.
 
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj reduction.zig
+
 Reduce and Reduce and Reduce Again
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Whether tracking down a bug or investigating compiler internals it's a good idea to
+reduce exposure to unrelated things.
 
+#. Source related issues should be reduced as much as possible. Any superfluous source can easily
+   lead to an unnecessary loss of clarity and wasted time.
+#. Compiler segfaults happen and when tracking them down it's best to also reduce the compiler
+   environment as much as possible. Here's a check-list of things to rule-out:
 
-.. |path.zig.workspace|    replace:: ~/zig/work
-.. |path.zig.build|        replace:: _build
-.. |path.zig.build.zig|    replace:: _build/zig
-.. |path.zig.build.zig0|   replace:: _build/zig0
-.. |flags.zig.override|    replace:: --override-std-dir std --override-lib-dir .
+   - if crashing during ``zig run``, ``zig test`` or ``zig build`` then try ``zig build-obj`` instead
+   - file/directory permissions, including ``zig-cache`` if active (remember, there are 2 caches)
+   - Make sure to identify where the segfault is coming from: userland or compiler?
+
+#. Sanity check dependencies of compiler:
+   `official build instructions <https://github.com/ziglang/zig#building-from-source>`_
