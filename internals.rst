@@ -24,84 +24,6 @@ the Zig Programming Language in order to help those who are interested in how
 things work under the hood and to give a starting point in debugging or contributing
 to the project.
 
-Compiler Building
-------------------
-
-Overview
-~~~~~~~~
-
-- cmake
-- compile common C++ sources
-- compile ``userland.o`` C++ sources
-- link ``zig0`` stage0 compiler
-- compile ``libuserland.a`` Zig sources
-- link ``zig`` stage1 compiler
-
-``userland.o``
-   This is a shim implementation of ``libuserland.a`` and is completely implemented in C++.
-   All exported symbols must match ``libuserland.a``. ``zig0`` links against but never makes
-   calls against the shim. All shims are implemented as panics.
-
-``zig0``
-   Also known as the *stage0* compiler.
-   It links against ``userland.o`` and is a functionally limited compiler but is robust
-   enough to build ``libuserland.a``.
-
-   ``zig0`` can build Zig source code, run tests and produce executables.
-   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
-   But it cannot do things like ``zig0 build ...`` because part of that functionality
-   is implemented in ``libuserland.a``.
-
-   During Zig compiler development it may be of use to develop against ``zig0`` in an interative fashion.
-
-   Here is an example of using stage0 to emit IR and LLVM-IR:
-
-   .. code:: sh
-
-      $ _build/zig0 --override-std-dir std --override-lib-dir . build-obj reduction.zig --verbose-ir --verbose-llvm-ir
-
-   and a corresponding example of launching ``lldb`` debugger:
-
-   .. code:: sh
-
-      $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir . build-obj reduction.zig
-
-``libuserland.a``
-   This is a support library implemented in Zig userland.
-   It replaces all shims from ``userland.o`` with implementations.
-   ``zig`` links against this library **instead** of ``userland.o``.
-
-``zig``
-   Also known as the *stage1* compiler.
-   It links against ``libuserland.a`` and is a fully functional compiler.
-   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
-
-Here is a short comparison: building and executing ``zig0`` vs ``zig``.
-Note the final lines where we short-cut the build process to only build ``zig0`` to save time.
-Both show command-line usage to force running from a source repository instead of an install dir.
-However, in the case of ``zig0`` it is almost always necessary because nothing will get installed
-until ``libuserland.a`` is produced.
-
-``configure, build and execute zig0``
-
-    .. code:: sh
-
-        cd ~/zig/work
-        mkdir _build
-        cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
-        ninja -C _build zig0
-        _build/zig0 --override-std-dir std --override-lib-dir . version
-
-``configure, build and execute zig``
-
-    .. code:: sh
-
-        cd ~/zig/work
-        mkdir _build
-        cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
-        ninja -C _build zig
-        _build/zig --override-std-dir std --override-lib-dir . version
-
 Compiler Pipeline
 -----------------
 
@@ -276,11 +198,61 @@ note:
    We're going to overload the use of ``diff`` highlighting to draw attention to to certain IR listings.
    Please ignore the unfortunate side-effect exclamation-mark at the beginning of attention lines.
 
-Other
-~~~~~
+general
+~~~~~~~
+
+BinOp
+`````
+
+``IrInstructionBinOp`` represents a binary operation.
+
+syntax:
+
+   .. code:: bnf
+
+      <BinOp> ::= <op1> <op_id> <op1>
+
+   ``op1``
+      first operand
+
+   ``op_id``
+      one of: BoolOr, BoolAnd, CmpEq, CmpNotEq, CmpLessThan, CmpGreaterThan, CmpLessOrEq,
+      CmpGreaterOrEq, BinOr, BinXor, BinAnd, BitShiftLeftLossy, BitShiftLeftExact,
+      BitShiftRightLossy, BitShiftRightExact, Add, AddWrap, Sub, SubWrap, Mult, MultWrap,
+      DivUnspecified, DivExact, DivTrunc, DivFloor, RemUnspecified, RemRem, RemMod, ArrayCat,
+      ArrayMult, MergeErrorSets
+
+   ``op2``
+      second operand
+..
+
+source-reduction → SIR:
+
+   .. code:: zig
+
+      export fn reduction(one: u64, two: u64) void {
+          var a: u64 = one + two;
+      }
+
+   .. code:: diff
+
+      fn reduction() { // (analyzed)
+      Entry_0:
+          #10 | VarPtr                | *const u64  | 1 | &one
+     !    #11 | LoadPtrGen            | u64         | 1 | loadptr(#10)result=(null)
+          #14 | VarPtr                | *const u64  | 1 | &two
+     !    #15 | LoadPtrGen            | u64         | 1 | loadptr(#14)result=(null)
+     !    #17 | BinOp                 | u64         | 1 | #11 + #15
+          #20 | StorePtr              | void        | - | *#19 = #17
+          :19 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+          #22 | DeclVarGen            | void        | - | var a: u64 align(8) = #19 // comptime = false
+          #26 | Return                | noreturn    | - | return {}
+      }
 
 Const
 `````
+
+``IrInstructionConst`` is a compile-time instruction.
 
 syntax:
 
@@ -290,8 +262,7 @@ syntax:
 
    ``value``
       comptime value
-
-``IrInstructionConst`` is a compile-time instruction.
+..
 
 source-reduction → SIR:
 
@@ -322,11 +293,13 @@ source-reduction → SIR:
           #15 | Return                | noreturn    | - | return {}
       }
 
-Terminators
+terminators
 ~~~~~~~~~~~
 
 Br
 ``
+
+``IrInstructionBr`` unconditionally transfers control flow to another basic-block.
 
 syntax:
 
@@ -336,8 +309,7 @@ syntax:
 
    ``dest_block``
       branch to take
-
-``IrInstructionBr`` unconditionally transfers control flow to another basic-block.
+..
 
 source-reduction → GIR:
 
@@ -375,6 +347,8 @@ source-reduction → GIR:
 CondBr
 ``````
 
+``IrInstructionCondBr`` conditionally transfers control flow to other basic-blocks.
+
 syntax:
 
    .. code:: bnf
@@ -387,8 +361,7 @@ syntax:
       branch taken if ``condition`` == ``true``
    ``else_block``
       branch taken if ``condition`` == ``false``
-
-``IrInstructionCondBr`` conditionally transfers control flow to other basic-blocks.
+..
 
 source-reduction → GIR:
 
@@ -432,13 +405,14 @@ source-reduction → GIR:
 Return
 ``````
 
+``IrInstructionReturn`` unconditionally transfers control flow back to the caller basic-block.
+
 syntax:
 
    .. code:: bnf
 
       <Return> ::= "return" "{}"
-
-``IrInstructionReturn`` unconditionally transfers control flow back to the caller basic-block.
+..
 
 source-reduction → GIR:
 
@@ -452,3 +426,149 @@ source-reduction → GIR:
       Entry_0:
      !    #5  | Return                | noreturn    | - | return {}
       }
+
+Compiler Building
+------------------
+
+Overview
+~~~~~~~~
+
+- cmake
+- compile common C++ sources
+- compile ``userland.o`` C++ sources
+- link ``zig0`` stage0 compiler
+- compile ``libuserland.a`` Zig sources
+- link ``zig`` stage1 compiler
+
+``userland.o``
+   This is a shim implementation of ``libuserland.a`` and is completely implemented in C++.
+   All exported symbols must match ``libuserland.a``. ``zig0`` links against but never makes
+   calls against the shim. All shims are implemented as panics.
+
+``zig0``
+   Also known as the *stage0* compiler.
+   It links against ``userland.o`` and is a functionally limited compiler but is robust
+   enough to build ``libuserland.a``.
+
+   ``zig0`` can build Zig source code, run tests and produce executables.
+   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
+   But it cannot do things like ``zig0 build ...`` because part of that functionality
+   is implemented in ``libuserland.a``.
+
+   During Zig compiler development it may be of use to develop against ``zig0`` in an interative fashion.
+
+   Here is an example of using stage0 to emit IR and LLVM-IR:
+
+   .. code:: sh
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir . build-obj reduction.zig --verbose-ir --verbose-llvm-ir
+
+   and a corresponding example of launching ``lldb`` debugger:
+
+   .. code:: sh
+
+      $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir . build-obj reduction.zig
+
+``libuserland.a``
+   This is a support library implemented in Zig userland.
+   It replaces all shims from ``userland.o`` with implementations.
+   ``zig`` links against this library **instead** of ``userland.o``.
+
+``zig``
+   Also known as the *stage1* compiler.
+   It links against ``libuserland.a`` and is a fully functional compiler.
+   It can be debugged with a native debugger such as ``gdb`` or ``lldb``.
+
+How-To: Common Tasks
+--------------------
+
+iteratively build compiler
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+note: for stage1 replace ``zig0`` with ``zig``:
+
+using ``make``:
+
+   .. code:: bash
+
+      $ make -C _build zig0
+      $ _build/zig0 --override-std-dir std --override-lib-dir . version
+
+using ``ninja``:
+
+   .. code:: bash
+
+      $ ninja -C _build zig0
+      $ _build/zig0 --override-std-dir std --override-lib-dir . version
+
+debug compiler
+~~~~~~~~~~~~~~
+
+note: for stage1 replace ``zig0`` with ``zig``:
+
+using ``gdb``:
+
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj foobar.zig
+      segmentation fault
+      $ gdb --args _build/zig0 --override-std-dir std --override-lib-dir build-obj foobar.zig
+
+using ``lldb``:
+
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj foobar.zig
+      segmentation fault
+      $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir build-obj foobar.zig
+
+print IR listing
+~~~~~~~~~~~~~~~~
+
+note: for stage1 replace ``zig0`` with ``zig``:
+
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj reduction.zig --verbose-ir
+
+configure for ``ninja``
+~~~~~~~~~~~~~~~~~~~~~~~
+
+   .. code:: bash
+
+      $ cd ~/zig/work
+      $ mkdir _build
+      $ cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
+
+Best Practices
+--------------
+
+Always direct stage0 to workspace
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is recommended to override ``std`` and ``lib`` dirs for ``zig0``.
+
+``zig build`` functionality is responsible for completing a compiler install.
+Since it is likely ``zig0`` development involves writing tests and userland changes
+those files cannot be installed until your development is able to progress to stage1.
+
+   .. code:: bash
+
+      $ _build/zig0 --override-std-dir std --override-lib-dir build-obj reduction.zig
+
+Reduce and Reduce and Reduce Again
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Whether tracking down a bug or investigating compiler internals it's a good idea to
+reduce exposure to unrelated things.
+
+#. Source related issues should be reduced as much as possible. Any superfluous source can easily
+   lead to an unnecessary loss of clarity and wasted time.
+#. When tracking compiler segfaults try also to reduce the compiler environment:
+
+   - if crashing during ``zig run``, ``zig test`` or ``zig build`` then try ``zig build-obj`` instead
+   - file/directory permissions, including ``zig-cache`` if active (remember, there are 2 caches)
+   - Make sure to identify where the segfault is coming from: userland or compiler?
+
+#. Sanity check dependencies of compiler:
+   `official build instructions <https://github.com/ziglang/zig#building-from-source>`_
