@@ -32,7 +32,7 @@ Compiler Pipeline
 The Zig compiler architecture pipeline is as follows:
 
 - consume Zig source code
-- generate tokens (Tokens)
+- generate tokens (LEX)
 - generate abstract syntax gree (AST)
 - generate Src internal representation (SIR)
 - generate Gen internal representation (GIR)
