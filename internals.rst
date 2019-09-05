@@ -297,7 +297,7 @@ source-reduction → SIR:
          _ = true;
       }
 
-   .. code::
+   .. code:: diff
 
       fn reduction() { // (IR)
       Entry_0:
@@ -306,7 +306,7 @@ source-reduction → SIR:
           #3  | ResetResult           | (unknown)   | - | ResetResult(none)
           #4  | Const                 | *void       | 1 | *_
           #5  | ResetResult           | (unknown)   | - | ResetResult(inst(*_))
-          #6  | Const                 | bool        | 1 | true
+      +   #6  | Const                 | bool        | 1 | true
           #7  | EndExpr               | (unknown)   | - | EndExpr(result=inst(*_),value=true)
           #8  | Const                 | void        | 2 | {}
           #9  | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
@@ -317,14 +317,6 @@ source-reduction → SIR:
           #14 | AddImplicitReturnType | (unknown)   | - | @addImplicitReturnType({})
           #15 | Return                | noreturn    | - | return {}
       }
-
-   .. code:: diff
-
-       one
-      +two
-       three
-           four
-       four
 
 Terminators
 ~~~~~~~~~~~
@@ -354,7 +346,7 @@ source-reduction → GIR:
           }
       }
 
-   .. code::
+   .. code:: diff
 
       fn reduction() { // (analyzed)
       Entry_0:
@@ -369,9 +361,9 @@ source-reduction → GIR:
           #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
           #36 | BinOp                 | u64         | 1 | #31 + 333
           #37 | StorePtr              | void        | - | *#30 = #36
-          #47 | Br                    | noreturn    | - | goto $EndIf_43
+     +    #47 | Br                    | noreturn    | - | goto $EndIf_43
       Else_26:
-          #50 | Br                    | noreturn    | - | goto $EndIf_43
+     +    #50 | Br                    | noreturn    | - | goto $EndIf_43
       EndIf_43:
           #57 | Return                | noreturn    | - | return {}
       }
@@ -407,7 +399,7 @@ source-reduction → GIR:
           }
       }
 
-   .. code::
+   .. code:: diff
 
       fn reduction() { // (analyzed)
       Entry_0:
@@ -416,14 +408,14 @@ source-reduction → GIR:
           #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
           #20 | VarPtr                | *const bool | 1 | &cond
           #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
-          #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
-      Then_25:
+     +    #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
+     +Then_25:
           #30 | VarPtr                | *u64        | 2 | &a
           #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
           #36 | BinOp                 | u64         | 1 | #31 + 333
           #37 | StorePtr              | void        | - | *#30 = #36
           #60 | Br                    | noreturn    | - | goto $EndIf_56
-      Else_26:
+     +Else_26:
           #44 | VarPtr                | *u64        | 2 | &a
           #45 | LoadPtrGen            | u64         | 1 | loadptr(#44)result=(null)
           #50 | BinOp                 | u64         | 1 | #45 - 333
@@ -450,9 +442,9 @@ source-reduction → GIR:
 
       export fn reduction() void {}
 
-   .. code::
+   .. code:: diff
 
       fn reduction() { // (analyzed)
       Entry_0:
-          #5  | Return                | noreturn    | - | return {}
+     +    #5  | Return                | noreturn    | - | return {}
       }
