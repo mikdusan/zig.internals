@@ -86,7 +86,8 @@ Reading IR
 
 This section will briefly describe textual representation of IR for example source ``reduction.zig``:
 
-.. _reading_ir_reduction:
+.. _reading_ir_reduction: what
+
 .. code:: zig
 
    export fn reduction() u64 {
