@@ -452,3 +452,8 @@ source-reduction → GIR:
       Entry_0:
      -    #5  | Return                | noreturn    | - | return {}
       }
+     -one
+     +two
+     !three
+     @four
+     =four
