@@ -230,18 +230,18 @@ source-reduction → SIR:
 
    .. code:: diff
 
-      fn reduction() { // (analyzed)
-      Entry_0:
-          #10 | VarPtr                | *const u64  | 1 | &one
-     !    #11 | LoadPtrGen            | u64         | 1 | loadptr(#10)result=(null)
-          #14 | VarPtr                | *const u64  | 1 | &two
-     !    #15 | LoadPtrGen            | u64         | 1 | loadptr(#14)result=(null)
-     !    #17 | BinOp                 | u64         | 1 | #11 + #15
-          #20 | StorePtr              | void        | - | *#19 = #17
-          :19 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
-          #22 | DeclVarGen            | void        | - | var a: u64 align(8) = #19 // comptime = false
-          #26 | Return                | noreturn    | - | return {}
-      }
+         fn reduction() { // (analyzed)
+         Entry_0:
+             #10 | VarPtr                | *const u64  | 1 | &one
+     !       #11 | LoadPtrGen            | u64         | 1 | loadptr(#10)result=(null)
+             #14 | VarPtr                | *const u64  | 1 | &two
+     !       #15 | LoadPtrGen            | u64         | 1 | loadptr(#14)result=(null)
+     !       #17 | BinOp                 | u64         | 1 | #11 + #15
+             #20 | StorePtr              | void        | - | *#19 = #17
+             :19 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+             #22 | DeclVarGen            | void        | - | var a: u64 align(8) = #19 // comptime = false
+             #26 | Return                | noreturn    | - | return {}
+         }
 
 Const
 `````
@@ -523,10 +523,10 @@ using ``lldb``:
 
    .. code:: diff
 
-      (lldb) frame variable instruction
-      (IrInstructionSliceSrc *) instruction = 0x0000000108156910
-    ! (lldb) p instruction->base.source_node->src()
-      ~/zig/work/bounds1.zig:3:23
+         (lldb) frame variable instruction
+         (IrInstructionSliceSrc *) instruction = 0x0000000108156910
+      !  (lldb) p instruction->base.source_node->src()
+         ~/zig/work/bounds1.zig:3:23
 
 print IR listing
 ~~~~~~~~~~~~~~~~
