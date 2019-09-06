@@ -4,6 +4,12 @@ Zig Compiler Internals
 .. contents::
 .. sectnum::
 
+note:
+   Due to limitations of this article format we overload ``diff`` syntax highlighting to
+   achieve a highlighting effect for code listings.
+   Consequently, highlighted lines will display an exclamation-mark at the beginning of each
+   line. This mark should be ignored.
+
 Introduction
 ------------
 
@@ -188,10 +194,6 @@ We should pause for a moment and examine why one of the instructions in column 1
 Common IR Instruction Set
 -------------------------
 
-note:
-   We're going to overload the use of ``diff`` highlighting to draw attention to to certain IR listings.
-   Please ignore the unfortunate side-effect exclamation-mark at the beginning of attention lines.
-
 general
 ~~~~~~~
 
@@ -230,18 +232,18 @@ source-reduction → SIR:
 
    .. code:: diff
 
-         fn reduction() { // (analyzed)
-         Entry_0:
-             #10 | VarPtr                | *const u64  | 1 | &one
-     !       #11 | LoadPtrGen            | u64         | 1 | loadptr(#10)result=(null)
-             #14 | VarPtr                | *const u64  | 1 | &two
-     !       #15 | LoadPtrGen            | u64         | 1 | loadptr(#14)result=(null)
-     !       #17 | BinOp                 | u64         | 1 | #11 + #15
-             #20 | StorePtr              | void        | - | *#19 = #17
-             :19 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
-             #22 | DeclVarGen            | void        | - | var a: u64 align(8) = #19 // comptime = false
-             #26 | Return                | noreturn    | - | return {}
-         }
+        fn reduction() { // (analyzed)
+        Entry_0:
+            #10 | VarPtr                | *const u64  | 1 | &one
+      !     #11 | LoadPtrGen            | u64         | 1 | loadptr(#10)result=(null)
+            #14 | VarPtr                | *const u64  | 1 | &two
+      !     #15 | LoadPtrGen            | u64         | 1 | loadptr(#14)result=(null)
+      !     #17 | BinOp                 | u64         | 1 | #11 + #15
+            #20 | StorePtr              | void        | - | *#19 = #17
+            :19 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+            #22 | DeclVarGen            | void        | - | var a: u64 align(8) = #19 // comptime = false
+            #26 | Return                | noreturn    | - | return {}
+        }
 
 Const
 `````
@@ -268,24 +270,24 @@ source-reduction → SIR:
 
    .. code:: diff
 
-      fn reduction() { // (IR)
-      Entry_0:
-          #1  | ResetResult           | (unknown)   | - | ResetResult(none)
-          #2  | ResetResult           | (unknown)   | - | ResetResult(none)
-          #3  | ResetResult           | (unknown)   | - | ResetResult(none)
-          #4  | Const                 | *void       | 1 | *_
-          #5  | ResetResult           | (unknown)   | - | ResetResult(inst(*_))
-     !    #6  | Const                 | bool        | 1 | true
-          #7  | EndExpr               | (unknown)   | - | EndExpr(result=inst(*_),value=true)
-          #8  | Const                 | void        | 2 | {}
-          #9  | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
-          #10 | CheckStatementIsVoid  | (unknown)   | - | @checkStatementIsVoid({})
-          #11 | Const                 | void        | 0 | {}
-          #12 | Const                 | void        | 3 | {}
-          #13 | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
-          #14 | AddImplicitReturnType | (unknown)   | - | @addImplicitReturnType({})
-          #15 | Return                | noreturn    | - | return {}
-      }
+        fn reduction() { // (IR)
+        Entry_0:
+            #1  | ResetResult           | (unknown)   | - | ResetResult(none)
+            #2  | ResetResult           | (unknown)   | - | ResetResult(none)
+            #3  | ResetResult           | (unknown)   | - | ResetResult(none)
+            #4  | Const                 | *void       | 1 | *_
+            #5  | ResetResult           | (unknown)   | - | ResetResult(inst(*_))
+            #6  | Const                 | bool        | 1 | true
+            #7  | EndExpr               | (unknown)   | - | EndExpr(result=inst(*_),value=true)
+      !     #8  | Const                 | void        | 2 | {}
+            #9  | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
+            #10 | CheckStatementIsVoid  | (unknown)   | - | @checkStatementIsVoid({})
+            #11 | Const                 | void        | 0 | {}
+            #12 | Const                 | void        | 3 | {}
+            #13 | EndExpr               | (unknown)   | - | EndExpr(result=none,value={})
+            #14 | AddImplicitReturnType | (unknown)   | - | @addImplicitReturnType({})
+            #15 | Return                | noreturn    | - | return {}
+        }
 
 terminators
 ~~~~~~~~~~~
@@ -318,25 +320,25 @@ source-reduction → GIR:
 
    .. code:: diff
 
-      fn reduction() { // (analyzed)
-      Entry_0:
-          #16 | StorePtr              | void        | - | *#12 = 999
-          :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
-          #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
-          #20 | VarPtr                | *const bool | 1 | &cond
-          #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
-          #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
-      Then_25:
-          #30 | VarPtr                | *u64        | 2 | &a
-          #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
-          #36 | BinOp                 | u64         | 1 | #31 + 333
-          #37 | StorePtr              | void        | - | *#30 = #36
-     !    #47 | Br                    | noreturn    | - | goto $EndIf_43
-      Else_26:
-     !    #50 | Br                    | noreturn    | - | goto $EndIf_43
-     !EndIf_43:
-          #57 | Return                | noreturn    | - | return {}
-      }
+        fn reduction() { // (analyzed)
+        Entry_0:
+            #16 | StorePtr              | void        | - | *#12 = 999
+            :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+            #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
+            #20 | VarPtr                | *const bool | 1 | &cond
+            #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
+            #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
+        Then_25:
+            #30 | VarPtr                | *u64        | 2 | &a
+            #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
+            #36 | BinOp                 | u64         | 1 | #31 + 333
+            #37 | StorePtr              | void        | - | *#30 = #36
+      !     #47 | Br                    | noreturn    | - | goto $EndIf_43
+        Else_26:
+      !     #50 | Br                    | noreturn    | - | goto $EndIf_43
+      ! EndIf_43:
+            #57 | Return                | noreturn    | - | return {}
+        }
 
 CondBr
 ``````
@@ -372,29 +374,29 @@ source-reduction → GIR:
 
    .. code:: diff
 
-      fn reduction() { // (analyzed)
-      Entry_0:
-          #16 | StorePtr              | void        | - | *#12 = 999
-          :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
-          #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
-          #20 | VarPtr                | *const bool | 1 | &cond
-          #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
-     !    #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
-     !Then_25:
-          #30 | VarPtr                | *u64        | 2 | &a
-          #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
-          #36 | BinOp                 | u64         | 1 | #31 + 333
-          #37 | StorePtr              | void        | - | *#30 = #36
-          #60 | Br                    | noreturn    | - | goto $EndIf_56
-     !Else_26:
-          #44 | VarPtr                | *u64        | 2 | &a
-          #45 | LoadPtrGen            | u64         | 1 | loadptr(#44)result=(null)
-          #50 | BinOp                 | u64         | 1 | #45 - 333
-          #51 | StorePtr              | void        | - | *#44 = #50
-          #63 | Br                    | noreturn    | - | goto $EndIf_56
-      EndIf_56:
-          #70 | Return                | noreturn    | - | return {}
-      }
+        fn reduction() { // (analyzed)
+        Entry_0:
+            #16 | StorePtr              | void        | - | *#12 = 999
+            :12 | AllocaGen             | *u64        | 2 | Alloca(align=0,name=a)
+            #17 | DeclVarGen            | void        | - | var a: u64 align(8) = #12 // comptime = false
+            #20 | VarPtr                | *const bool | 1 | &cond
+            #21 | LoadPtrGen            | bool        | 1 | loadptr(#20)result=(null)
+      !     #27 | CondBr                | noreturn    | - | if (#21) $Then_25 else $Else_26
+      ! Then_25:
+            #30 | VarPtr                | *u64        | 2 | &a
+            #31 | LoadPtrGen            | u64         | 1 | loadptr(#30)result=(null)
+            #36 | BinOp                 | u64         | 1 | #31 + 333
+            #37 | StorePtr              | void        | - | *#30 = #36
+            #60 | Br                    | noreturn    | - | goto $EndIf_56
+      ! Else_26:
+            #44 | VarPtr                | *u64        | 2 | &a
+            #45 | LoadPtrGen            | u64         | 1 | loadptr(#44)result=(null)
+            #50 | BinOp                 | u64         | 1 | #45 - 333
+            #51 | StorePtr              | void        | - | *#44 = #50
+            #63 | Br                    | noreturn    | - | goto $EndIf_56
+        EndIf_56:
+            #70 | Return                | noreturn    | - | return {}
+        }
 
 Return
 ``````
@@ -523,10 +525,10 @@ using ``lldb``:
 
    .. code:: diff
 
-         (lldb) frame variable instruction
-         (IrInstructionSliceSrc *) instruction = 0x0000000108156910
-      !  (lldb) p instruction->base.source_node->src()
-         ~/zig/work/bounds1.zig:3:23
+        (lldb) frame variable instruction
+        (IrInstructionSliceSrc *) instruction = 0x0000000108156910
+      ! (lldb) p instruction->base.source_node->src()
+        ~/zig/work/bounds1.zig:3:23
 
 print IR listing
 ~~~~~~~~~~~~~~~~
