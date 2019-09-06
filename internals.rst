@@ -525,7 +525,7 @@ using ``lldb``:
 
       (lldb) frame variable instruction
       (IrInstructionSliceSrc *) instruction = 0x0000000108156910
-     !(lldb) p instruction->base.source_node->src()
+   !  (lldb) p instruction->base.source_node->src()
       ~/zig/work/bounds1.zig:3:23
 
 print IR listing
