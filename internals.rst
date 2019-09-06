@@ -9,20 +9,19 @@ Introduction
 
 The Zig compiler is implemented mostly in C++ with some parts in Zig userland.
 
-Long-term goals (in no particular order) are as follows:
+Long-term goals (in no particular order) for the compiler are as follows:
 
 - become self hosting
-- add a fast-debug backend (machine code generator)
+- add a fast backend (non-optimizing machine code generator)
 - add fine-grained incremental builds
 - continue to improve safe-mode code generation
 
 Abstract
 --------
 
-This article aims to document various aspects of the implementation of 
-the Zig Programming Language in order to help those who are interested in how
-things work under the hood and to give a starting point in debugging or contributing
-to the project.
+This article aims to document various internal aspects of the
+`Zig Programming Language <https://ziglang.org>`_
+and bootstrap newcomers interested in debugging/contributing to the project.
 
 Compiler Pipeline
 -----------------
@@ -517,6 +516,18 @@ using ``lldb``:
       segmentation fault
       $ lldb _build/zig0 -- --override-std-dir std --override-lib-dir build-obj foobar.zig
 
+debug: print instruction source location
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+using ``lldb``:
+
+   .. code:: diff
+
+      (lldb) frame variable instruction
+      (IrInstructionSliceSrc *) instruction = 0x0000000108156910
+     !(lldb) p instruction->base.source_node->src()
+      ~/zig/work/bounds1.zig:3:23
+
 print IR listing
 ~~~~~~~~~~~~~~~~
 
@@ -573,6 +584,5 @@ reduce exposure to unrelated things.
    - if crashing during ``zig run``, ``zig test`` or ``zig build`` then try ``zig build-obj`` instead
    - file/directory permissions, including ``zig-cache`` if active (remember, there are 2 caches)
    - Make sure to identify where the segfault is coming from: userland or compiler?
-
-#. Sanity check dependencies of compiler:
-   `official build instructions <https://github.com/ziglang/zig#building-from-source>`_
+   - Sanity check dependencies of compiler:
+     `official build instructions <https://github.com/ziglang/zig#building-from-source>`_
