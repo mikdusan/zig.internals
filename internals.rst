@@ -557,6 +557,63 @@ configure for ``ninja``
       $ mkdir _build
       $ cmake -G Ninja -S . -B _build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/opt/zig -DCMAKE_PREFIX_PATH=/opt/llvm-8.0.1
 
+behavior tests
+~~~~~~~~~-----
+
+These are language-fundamental tests like flow-control, types, alignment, pointers, optionals, slices, arrays.
+It is crucial the compiler can pass these tests after making internal changes.
+
+direct
+    The most fine-grained way to run tests is via ``zig test ...`` command.
+    Here we run unit tests for the ``while`` flow-control:
+
+    ``_build/zig0 --override-std-dir std --override-lib-dir . test test/stage1/behavior/while.zig``
+
+    .. code::
+
+        1/20 test "while loop"...OK
+        2/20 test "static eval while"...OK
+        3/20 test "continue and break"...OK
+        4/20 test "return with implicit cast from while loop"...OK
+        5/20 test "while with continue expression"...OK
+        6/20 test "while with else"...OK
+        7/20 test "while with optional as condition"...OK
+        8/20 test "while with optional as condition with else"...OK
+        9/20 test "while with error union condition"...OK
+        10/20 test "while on optional with else result follow else prong"...OK
+        11/20 test "while on optional with else result follow break prong"...OK
+        12/20 test "while on error union with else result follow else prong"...OK
+        13/20 test "while on error union with else result follow break prong"...OK
+        14/20 test "while on bool with else result follow else prong"...OK
+        15/20 test "while on bool with else result follow break prong"...OK
+        16/20 test "break from outer while loop"...OK
+        17/20 test "continue outer while loop"...OK
+        18/20 test "while bool 2 break statements and an else"...OK
+        19/20 test "while optional 2 break statements and an else"...OK
+        20/20 test "while error 2 break statements and an else"...OK
+
+    and it can be restricted even further with simple filtering:
+
+    ``_build/zig0 --override-std-dir std --override-lib-dir . test test/stage1/behavior/while.zig --test-filter bool``
+
+    .. code::
+
+        1/3 test "while on bool with else result follow else prong"...OK
+        2/3 test "while on bool with else result follow break prong"...OK
+        3/3 test "while bool 2 break statements and an else"...OK
+        All tests passed.
+
+via build
+    When the compiler is able to compile ``build.zig`` larger test suites can be used.
+    Here we run all the behavior tests with the following restrictions:
+
+    - skip repeating test against ``--release-safe`` and ``--release-fast`` compiler modes
+    - skip repeating test for non-native platforms (run for host only)
+    - test will still run for targets permutations such as freestanding, libc, single-threaded and multi-threaded.
+    - filter for tests with ``break`` in name
+
+    ``_build/zig0 build --override-std-dir std --override-lib-dir . test-behavior -Dskip-release -Dskip-non-native -Dtest-filter=break``
+
 Best Practices
 --------------
 
